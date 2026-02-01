@@ -15,30 +15,42 @@ scale=1.0">
     <h1>Add Book</h1>
     <form th:action="@{/books/add}" th:object="${book}" method="post">
         <div class="col-6 mb-3">
-            <label class="form-label" for="id">Id:</label>
-            <input class="form-control" type="text" th:field="*{id}" id="id">
-        </div>
-        <div class="col-6 mb-3">
-            <label class="form-label" for="title">Title:</label>
-            <input class="form-control" type="text" th:field="*{title}"
-                   id="title">
+            <label class="form-label" for="title">Title:</label><span
+                class="text-danger">*</span>
+            <input class="form-control" type="text" placeholder="Enter title"
+                   th:field="*{title}" id="title" required autofocus >
+            <span class="text-danger" th:if="${#fields.hasErrors('title')}"
+                  th:errors="*{title}"></span>
         </div>
         <div class="col-6 mb-3">
             <label class="form-label" for="author">Author:</label>
             <input class="form-control" type="text" th:field="*{author}"
-                   id="author">
+                   id="author" placeholder="Enter author">
+            <span class="text-danger" th:if="${#fields.hasErrors('author')}"
+                  th:errors="*{author}"></span>
         </div>
         <div class="col-6 mb-3">
-            <label class="form-label" for="price">Price:</label>
-            <input class="form-control" type="text" th:field="*{price}"
-                   id="price">
+            <label class="form-label" for="price">Price:</label><span
+                class="text-danger">*</span>
+            <input class="form-control" required type="text"
+                   th:field="*{price}" id="price" placeholder="Enter price">
+            <span class="text-danger" th:if="${#fields.hasErrors('price')}"
+                  th:errors="*{price}"></span>
         </div>
         <div class="col-6 mb-3">
-            <label class="form-label" for="category">Category:</label>
-            <input class="form-control" type="text" th:field="*{category}"
-                   id="category">
+            <label class="form-label" for="category">Category:</label><span
+                class="text-danger">*</span>
+            <select class="form-control" id="category" name="category.id">
+                <option value="">-- Select Category --</option>
+                <option th:each="category : ${categories}"
+                        th:value="${category.getId()}"
+                        th:text="${category.getName()}"></option>
+            </select>
+            <span class="text-danger"
+                  th:if="${#fields.hasErrors('category')}"
+                  th:errors="*{category}"></span>
         </div>
-        <input type="submit" class="btn btn-primary" value="Save">
+        <input type="submit" class="btn btn-primary" value="Save" />
     </form>
     <br>
     <a th:href="@{/books}">Back to List</a>
