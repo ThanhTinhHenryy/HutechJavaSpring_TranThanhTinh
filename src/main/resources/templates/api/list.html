@@ -10,13 +10,15 @@
   </head>
   <body>
     <th:block th:replace="~{layout::header}"></th:block>
-    <div class="container">
+    <div class="container container-page">
       <div class="row">
         <div class="col-md-12">
-          <nav class="navbar navbar-light">
+          <div class="card p-3 mb-3">
             <div class="container-fluid">
-              <h1>API Book List</h1>
-              <form class="d-flex" id="search-form">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="m-0">API Book List</h2>
+              </div>
+              <form class="d-flex search-bar" id="search-form">
                 <input
                   class="form-control me-2"
                   type="search"
@@ -25,24 +27,25 @@
                   name="keyword"
                   id="keyword"
                 />
-                <button class="btn btn-outline-success" type="submit">
+                <button class="btn btn-primary" type="submit">
                   Search
                 </button>
               </form>
             </div>
-          </nav>
+          </div>
         </div>
       </div>
       <div class="mb-3">
         <div class="btn-group" role="group" aria-label="Sort">
-          <button class="btn btn-outline-secondary" data-sort="id">Sort by Id</button>
-          <button class="btn btn-outline-secondary" data-sort="title">Sort by Title</button>
-          <button class="btn btn-outline-secondary" data-sort="author">Sort by Author</button>
-          <button class="btn btn-outline-secondary" data-sort="price">Sort by Price</button>
-          <button class="btn btn-outline-secondary" data-sort="category">Sort by Category</button>
+          <button class="btn btn-outline-primary" data-sort="id">Sort by Id</button>
+          <button class="btn btn-outline-primary" data-sort="title">Sort by Title</button>
+          <button class="btn btn-outline-primary" data-sort="author">Sort by Author</button>
+          <button class="btn btn-outline-primary" data-sort="price">Sort by Price</button>
+          <button class="btn btn-outline-primary" data-sort="category">Sort by Category</button>
         </div>
       </div>
-      <table class="table">
+      <div class="card">
+      <table class="table table-striped">
         <thead>
           <tr>
             <th>Id</th>
@@ -54,6 +57,7 @@
         </thead>
         <tbody id="books-body"></tbody>
       </table>
+      </div>
       <div class="d-flex justify-content-between align-items-center">
         <div>
           <button id="prev" class="btn btn-outline-primary">Prev</button>

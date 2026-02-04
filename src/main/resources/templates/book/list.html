@@ -17,29 +17,33 @@
   </head>
   <body>
     <th:block th:replace="~{layout::header}"></th:block>
-    <div class="container">
+    <div class="container container-page">
       <div class="row">
         <div class="col-md-12">
-          <nav class="navbar navbar-light">
+          <div class="card p-3 mb-3">
             <div class="container-fluid">
-              <h1>My Book List</h1>
-              <form class="d-flex" th:action="@{/books/search}" method="get">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="m-0">Books</h2>
+                <span class="badge badge-soft" th:text="${books.size()}"></span>
+              </div>
+              <form class="d-flex search-bar" th:action="@{/books/search}" method="get">
                 <input
                   class="form-control me-2"
                   type="search"
-                  placeholder="Search"
+                  placeholder="Search by title, author, category"
                   aria-label="Search"
                   name="keyword"
                 />
-                <button class="btn btn-outline-success" type="submit">
+                <button class="btn btn-primary" type="submit">
                   Search
                 </button>
               </form>
             </div>
-          </nav>
+          </div>
         </div>
       </div>
-      <table class="table">
+      <div class="card">
+      <table class="table table-striped">
         <thead>
           <tr>
             <th>
@@ -83,14 +87,15 @@
             <td th:text="${book.getPrice()}"></td>
             <td th:text="${book.getCategory().getName()}"></td>
             <td colspan="2">
+              <div class="list-actions">
               <a
-                class="btn btn-primary"
+                class="btn btn-outline-primary"
                 sec:authorize="hasAnyAuthority('ROLE_ADMIN','ADMIN')"
                 th:href="@{/books/edit/{id}(id=${book.getId()})}"
                 >Edit</a
               >
               <a
-                class="btn btn-danger"
+                class="btn btn-outline-danger"
                 sec:authorize="hasAnyAuthority('ROLE_ADMIN','ADMIN')"
                 th:href="@{/books/delete/{id}(id=${book.getId()})}"
                 onclick="return confirm('Are you sure you want to delete this book?')"
@@ -114,16 +119,18 @@
                 />
                 <button
                   type="submit"
-                  class="btn btn-success"
+                  class="btn btn-primary"
                   onclick="return confirm('Are you sure you want to add this book to cart?')"
                 >
                   Add to cart
                 </button>
               </form>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
     <nav aria-label="Page navigation example">
       <ul

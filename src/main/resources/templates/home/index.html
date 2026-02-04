@@ -11,14 +11,16 @@ scale=1.0">
 </head>
 <body>
 <th:block th:replace="~{layout::header}"></th:block>
-<div class="container">
-    <nav class="navbar navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                TRANG CHỦ ỨNG DỤNG QUẢN LÝ SÁCH - KẾT NỐI CSDL MYSQL
-            </a>
+<div class="container container-page">
+    <div class="hero">
+        <h1 class="mb-2">Ứng dụng quản lý sách</h1>
+        <p class="text-secondary mb-4">Kết nối CSDL MySQL, quản lý danh mục, sách, giỏ hàng và hóa đơn.</p>
+        <div class="d-flex gap-2">
+            <a class="btn btn-light" href="/books">Danh sách sách</a>
+            <a class="btn btn-outline-light" href="/api/list">Danh sách qua API</a>
+            <a class="btn btn-outline-light" href="/cart">Giỏ hàng</a>
         </div>
-    </nav>
+    </div>
 </div>
 <th:block th:replace="~{layout::footer}"></th:block>
 </body>

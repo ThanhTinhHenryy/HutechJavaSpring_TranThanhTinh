@@ -11,8 +11,9 @@ scale=1.0">
 </head>
 <body>
 <th:block th:replace="~{layout::header}"></th:block>
-<div class="container" th:if="${not #lists.isEmpty(cart.cartItems)}">
-    <table class="table">
+<div class="container container-page" th:if="${not #lists.isEmpty(cart.cartItems)}">
+    <div class="card p-3">
+    <table class="table table-striped">
         <thead>
         <tr>
             <th scope="col">Book ID</th>
@@ -51,15 +52,16 @@ scale=1.0">
             <h3>Total: <span th:text="${totalPrice}"></span></h3>
         </div>
         <div class="col-md-12 text-center">
-            <a class="btn btn-success"
+            <a class="btn btn-primary"
                th:href="@{/cart/checkout}">Checkout</a>
-            <a class="btn btn-danger"
+            <a class="btn btn-outline-danger"
                th:href="@{/cart/clearCart}">Clear Cart</a>
         </div>
     </div>
+    </div>
 </div>
-<div class="container" th:if="${#lists.isEmpty(cart.cartItems)}">
-    <div class="container">
+<div class="container container-page" th:if="${#lists.isEmpty(cart.cartItems)}">
+    <div class="empty-state card">
         <div class="row">
             <div class="col-md-6 offset-md-3 text-center">
                 <h3 class="mt-5">Your cart is empty</h3>

@@ -11,8 +11,9 @@ scale=1.0">
 </head>
 <body>
 <th:block th:replace="~{layout::header}"></th:block>
-<div class="container">
-    <h1>Edit Book</h1>
+<div class="container container-page">
+    <div class="card p-4">
+    <h2 class="mb-3">Edit Book</h2>
     <form th:action="@{/books/edit}" th:object="${book}" method="post">
         <input type="hidden" th:field="*{id}">
         <div class="col-6 mb-3">
@@ -47,10 +48,14 @@ scale=1.0">
 book.category.getId()}"></option>
             </select>
         </div>
-        <input type="submit" value="Save">
+        <div class="d-flex gap-2">
+            <input type="submit" class="btn btn-primary" value="Save">
+            <a class="btn btn-outline-secondary" th:href="@{/books}">Cancel</a>
+        </div>
     </form>
     <br>
     <a th:href="@{/books}">Back to List</a>
+    </div>
 </div>
 <th:block th:replace="~{layout::footer}"></th:block>
 </body>
