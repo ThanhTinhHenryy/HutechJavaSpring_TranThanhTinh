@@ -1,5 +1,6 @@
 package fit.hutech.spring.services;
 
+import fit.hutech.spring.constants.Provider;
 import fit.hutech.spring.entities.User;
 import fit.hutech.spring.repositories.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -53,6 +55,18 @@ public class UserService implements UserDetailsService {
     public boolean existsByPhone(String phone) {
         return phone != null && userRepository.existsByPhone(phone);
     }
+    public void saveOauthUser(String email, String name) {
+        String normalizedEmail = email == null ? null : email.trim().toLowerCase();
+        if (normalizedEmail == null || normalizedEmail.isEmpty()) return;
+        if (userRepository.existsByEmail(normalizedEmail)) return;
+        User user = new User();
+        user.setUsername(normalizedEmail);
+        user.setEmail(normalizedEmail);
+        user.setPhone(null);
+        user.setPassword(passwordEncoder.encode(java.util.UUID.randomUUID().toString()));
+        user.setProvider("oauth");
+        userRepository.save(user);
+    }
     @Override
     public UserDetails loadUserByUsername(String username) throws
             UsernameNotFoundException {
@@ -69,4 +83,16 @@ public class UserService implements UserDetailsService {
                 new UsernameNotFoundException("User not found with identifier: " + username)
         );
     }
+
+//    public void saveOauthUser(String email, @NotNull String username) {
+//        if(userRepository.findByUsername(username).isPresent())
+//            return;
+//        var user = new User();
+//        user.setUsername(username);
+//        user.setEmail(email);
+//        user.setPassword(new BCryptPasswordEncoder().encode(username));
+//        user.setProvider(Provider.GOOGLE.value);
+//        user.getRoles().add(roleRepository.findRoleById(Role.USER.value));
+//        userRepository.save(user);
+//    }
 }

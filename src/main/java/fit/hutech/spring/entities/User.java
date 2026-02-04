@@ -90,4 +90,6 @@ public class User implements UserDetails {
     @Override
     public int hashCode() {return getClass().hashCode();
     }
+    @Column(name = "provider", length = 50)
+    private String provider;
 }

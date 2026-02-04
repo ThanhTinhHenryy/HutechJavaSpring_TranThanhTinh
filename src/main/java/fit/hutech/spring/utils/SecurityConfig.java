@@ -1,6 +1,7 @@
 package fit.hutech.spring.utils;
 
 import fit.hutech.spring.services.UserService;
+import fit.hutech.spring.services.OauthService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -36,7 +38,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(
             @NotNull HttpSecurity http,
-            UserDetailsService userDetailsService
+            UserDetailsService userDetailsService,
+            UserService userService,
+            OauthService oAuthService
     ) throws Exception {
         return http.authenticationProvider(authenticationProvider(userDetailsService, passwordEncoder()))
                 .authorizeHttpRequests(auth -> auth
@@ -66,6 +70,20 @@ public class SecurityConfig {
                                 .defaultSuccessUrl("/")
                                 .failureUrl("/login?error=true")
                                 .permitAll()
+                )
+                .oauth2Login(oauth2Login ->
+                        oauth2Login.loginPage("/login")
+                                .failureUrl("/login?error=true")
+                                .userInfoEndpoint(userInfo -> userInfo.userService(oAuthService))
+                                .successHandler((request, response, authentication) -> {
+                                    Object principal = authentication.getPrincipal();
+                                    if (principal instanceof OidcUser oidcUser) {
+                                        String email = oidcUser.getEmail();
+                                        String name = oidcUser.getFullName();
+                                        userService.saveOauthUser(email, name);
+                                    }
+                                    response.sendRedirect("/");
+                                })
                 )
                 .rememberMe(rememberMe ->
                         rememberMe.key("hutech").rememberMeCookieName("hutech")
