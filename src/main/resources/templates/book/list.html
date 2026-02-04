@@ -82,7 +82,7 @@
         <tbody>
           <tr th:each="book : ${books}">
             <td th:text="${book.getId()}"></td>
-            <td th:text="${book.getTitle()}"></td>
+            <td><a th:href="@{/books/detail/{id}(id=${book.getId()})}" th:text="${book.getTitle()}"></a></td>
             <td th:text="${book.getAuthor()}"></td>
             <td th:text="${book.getPrice()}"></td>
             <td th:text="${book.getCategory().getName()}"></td>
@@ -125,11 +125,23 @@
                   Add to cart
                 </button>
               </form>
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                th:attr="data-id=${book.getId()},data-title=${book.getTitle()},data-author=${book.getAuthor()},data-price=${book.getPrice()},data-category=${book.getCategory().getName()}"
+                onclick="addWishlist(this)"
+              >
+                Add to wishlist
+              </button>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
+      </div>
+      <div class="d-flex justify-content-end my-2">
+        <a class="btn btn-outline-secondary btn-sm" href="/api/v1/books/export/csv">Export CSV</a>
+        <a class="btn btn-outline-primary btn-sm ms-2" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ADMIN')" href="/books/import">Import CSV</a>
       </div>
     </div>
     <nav aria-label="Page navigation example">
@@ -150,5 +162,24 @@
       </ul>
     </nav>
     <th:block th:replace="~{layout::footer}"></th:block>
+    <script>
+      function addWishlist(btn){
+        const item = {
+          id: btn.getAttribute('data-id'),
+          title: btn.getAttribute('data-title'),
+          author: btn.getAttribute('data-author'),
+          price: btn.getAttribute('data-price'),
+          category: btn.getAttribute('data-category')
+        };
+        const list = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        if(!list.find(b => String(b.id) === String(item.id))){
+          list.push(item);
+          localStorage.setItem('wishlist', JSON.stringify(list));
+          alert('Đã thêm vào wishlist');
+        } else {
+          alert('Sách đã có trong wishlist');
+        }
+      }
+    </script>
   </body>
 </html>

@@ -56,4 +56,31 @@ public class ApiController {
                 .map(BookGetVm::from)
                 .toList());
     }
+
+    @GetMapping(value = "/books/export/csv")
+    public ResponseEntity<String> exportBooksCsv() {
+        var books = bookService.getAllBooks(0, Integer.MAX_VALUE, "id");
+        StringBuilder sb = new StringBuilder();
+        sb.append("id,title,author,price,category").append("\n");
+        books.forEach(b -> sb
+                .append(b.getId()).append(',')
+                .append(escapeCsv(b.getTitle())).append(',')
+                .append(escapeCsv(b.getAuthor())).append(',')
+                .append(b.getPrice() == null ? "" : b.getPrice()).append(',')
+                .append(b.getCategory() == null ? "" : escapeCsv(b.getCategory().getName()))
+                .append("\n"));
+        return ResponseEntity.ok()
+                .header("Content-Type", "text/csv; charset=UTF-8")
+                .header("Content-Disposition", "attachment; filename=books.csv")
+                .body(sb.toString());
+    }
+
+    private String escapeCsv(String s){
+        if (s == null) return "";
+        String v = s.replace("\"","\"\"");
+        if (v.contains(",") || v.contains("\"") || v.contains("\n")) {
+            return "\"" + v + "\"";
+        }
+        return v;
+    }
 }

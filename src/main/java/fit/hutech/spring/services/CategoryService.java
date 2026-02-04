@@ -36,4 +36,14 @@ public class CategoryService {
     public void deleteCategoryById(Long id) {
         categoryRepository.deleteById(id);
     }
+    public Category findOrCreateByName(String name) {
+        var trimmed = name == null ? "" : name.trim();
+        if(trimmed.isEmpty()) return null;
+        return categoryRepository.findByName(trimmed)
+                .orElseGet(() -> {
+                    var c = new Category();
+                    c.setName(trimmed);
+                    return categoryRepository.save(c);
+                });
+    }
 }

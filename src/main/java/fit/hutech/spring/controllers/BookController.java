@@ -62,6 +62,45 @@ public class BookController {
         bookService.addBook(book);
         return "redirect:/books";
     }
+    @GetMapping("/import")
+    public String importForm() {
+        return "book/import";
+    }
+    @PostMapping("/import")
+    public String importCsv(@RequestParam("file") org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
+        var reader = new java.io.BufferedReader(new java.io.InputStreamReader(file.getInputStream()));
+        String line;
+        boolean first = true;
+        while((line = reader.readLine()) != null){
+            if(first){ first = false; continue; }
+            var parts = parseCsvLine(line);
+            if(parts.length < 5) continue;
+            var b = new Book();
+            b.setTitle(parts[1]);
+            b.setAuthor(parts[2]);
+            try { b.setPrice(parts[3].isEmpty()? null : Double.parseDouble(parts[3])); } catch(Exception ignored){}
+            var category = categoryService.findOrCreateByName(parts[4]);
+            b.setCategory(category);
+            bookService.addBook(b);
+        }
+        return "redirect:/books";
+    }
+    private String[] parseCsvLine(String line){
+        var list = new java.util.ArrayList<String>();
+        boolean inQuotes = false;
+        StringBuilder sb = new StringBuilder();
+        for(char c : line.toCharArray()){
+            if(c=='\"'){ inQuotes = !inQuotes; continue; }
+            if(c==',' && !inQuotes){
+                list.add(sb.toString());
+                sb.setLength(0);
+            } else {
+                sb.append(c);
+            }
+        }
+        list.add(sb.toString());
+        return list.toArray(new String[0]);
+    }
     @PostMapping("/add-to-cart")
     public String addToCart(HttpSession session,
                             @RequestParam long id,
@@ -93,6 +132,13 @@ public class BookController {
         model.addAttribute("categories",
                 categoryService.getAllCategories());
         return "book/edit";
+    }
+    @GetMapping("/detail/{id}")
+    public String detail(@NotNull Model model, @PathVariable long id) {
+        var book = bookService.getBookById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Book not found"));
+        model.addAttribute("book", book);
+        return "book/detail";
     }
     @PostMapping("/edit")
     public String editBook(@Valid @ModelAttribute("book") Book book,

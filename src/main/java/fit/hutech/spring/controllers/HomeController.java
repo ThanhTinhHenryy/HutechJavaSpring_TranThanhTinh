@@ -14,4 +14,8 @@ public class HomeController {
     public String apiList() {
         return "api/list";
     }
+    @GetMapping("/wishlist")
+    public String wishlist() {
+        return "wishlist/list";
+    }
 }

@@ -64,8 +64,12 @@
               >
                 <a class="nav-link" href="/cart">Cart</a>
               </li>
+              <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_USER','ADMIN','USER')">
+                <a class="nav-link" href="/wishlist">Wishlist</a>
+              </li>
             </ul>
             <div class="d-flex ms-auto align-items-center gap-2" sec:authorize="isAuthenticated()">
+              <button class="btn btn-light btn-sm" id="themeToggle" type="button">Dark Mode</button>
               <img
                 th:if="${(#authentication.principal instanceof T(org.springframework.security.oauth2.core.oidc.user.OidcUser)) and (#authentication.principal.getAttribute('picture') != null)}"
                 th:src="${#authentication.principal.getAttribute('picture')}"
@@ -105,6 +109,26 @@
       </div>
       <script th:src="@{/js/bootstrap.min.js}"></script>
       <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
+      <script>
+        (function(){
+          const applyTheme = (t)=> {
+            document.body.classList.toggle('theme-dark', t === 'dark');
+          };
+          const saved = localStorage.getItem('theme') || 'light';
+          applyTheme(saved);
+          const btn = document.getElementById('themeToggle');
+          if(btn){
+            btn.textContent = saved === 'dark' ? 'Light Mode' : 'Dark Mode';
+            btn.addEventListener('click', ()=>{
+              const current = document.body.classList.contains('theme-dark') ? 'dark' : 'light';
+              const next = current === 'dark' ? 'light' : 'dark';
+              localStorage.setItem('theme', next);
+              applyTheme(next);
+              btn.textContent = next === 'dark' ? 'Light Mode' : 'Dark Mode';
+            });
+          }
+        })();
+      </script>
     </footer>
   </body>
 </html>
