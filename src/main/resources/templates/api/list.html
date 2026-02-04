@@ -1,0 +1,151 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Book List</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+  </head>
+  <body>
+    <th:block th:replace="~{layout::header}"></th:block>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <nav class="navbar navbar-light">
+            <div class="container-fluid">
+              <h1>API Book List</h1>
+              <form class="d-flex" id="search-form">
+                <input
+                  class="form-control me-2"
+                  type="search"
+                  placeholder="Search by title/author/category"
+                  aria-label="Search"
+                  name="keyword"
+                  id="keyword"
+                />
+                <button class="btn btn-outline-success" type="submit">
+                  Search
+                </button>
+              </form>
+            </div>
+          </nav>
+        </div>
+      </div>
+      <div class="mb-3">
+        <div class="btn-group" role="group" aria-label="Sort">
+          <button class="btn btn-outline-secondary" data-sort="id">Sort by Id</button>
+          <button class="btn btn-outline-secondary" data-sort="title">Sort by Title</button>
+          <button class="btn btn-outline-secondary" data-sort="author">Sort by Author</button>
+          <button class="btn btn-outline-secondary" data-sort="price">Sort by Price</button>
+          <button class="btn btn-outline-secondary" data-sort="category">Sort by Category</button>
+        </div>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Price</th>
+            <th>Category</th>
+          </tr>
+        </thead>
+        <tbody id="books-body"></tbody>
+      </table>
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <button id="prev" class="btn btn-outline-primary">Prev</button>
+          <button id="next" class="btn btn-outline-primary">Next</button>
+        </div>
+        <div>Page: <span id="page-label">0</span></div>
+      </div>
+    </div>
+    <th:block th:replace="~{layout::footer}"></th:block>
+    <script>
+      (function () {
+        const apiBase = '/api/v1';
+        const tbody = document.getElementById('books-body');
+        const pageLabel = document.getElementById('page-label');
+        const prevBtn = document.getElementById('prev');
+        const nextBtn = document.getElementById('next');
+        const sortButtons = document.querySelectorAll('[data-sort]');
+        const searchForm = document.getElementById('search-form');
+        const keywordInput = document.getElementById('keyword');
+
+        let state = {
+          pageNo: 0,
+          pageSize: 20,
+          sortBy: 'id',
+          keyword: ''
+        };
+
+        function renderRows(books) {
+          tbody.innerHTML = books
+            .map(
+              (b) => `
+              <tr>
+                <td>${b.id}</td>
+                <td>${b.title}</td>
+                <td>${b.author}</td>
+                <td>${b.price ?? ''}</td>
+                <td>${b.category ?? ''}</td>
+              </tr>`
+            )
+            .join('');
+          pageLabel.textContent = String(state.pageNo);
+        }
+
+        async function loadBooks() {
+          const url = `${apiBase}/books?pageNo=${state.pageNo}&pageSize=${state.pageSize}&sortBy=${encodeURIComponent(state.sortBy)}`;
+          const res = await fetch(url, { credentials: 'same-origin' });
+          if (!res.ok) {
+            console.error('Failed to load books', res.status);
+            return;
+          }
+          const data = await res.json();
+          renderRows(data);
+        }
+
+        async function searchBooks() {
+          const url = `${apiBase}/books/search?keyword=${encodeURIComponent(state.keyword)}`;
+          const res = await fetch(url, { credentials: 'same-origin' });
+          if (!res.ok) {
+            console.error('Failed to search books', res.status);
+            return;
+          }
+          const data = await res.json();
+          renderRows(data);
+        }
+
+        prevBtn.addEventListener('click', () => {
+          state.pageNo = Math.max(0, state.pageNo - 1);
+          state.keyword ? searchBooks() : loadBooks();
+        });
+        nextBtn.addEventListener('click', () => {
+          state.pageNo += 1;
+          // API không trả totalPages, ta vẫn cho next để xem trang tiếp
+          state.keyword ? searchBooks() : loadBooks();
+        });
+        sortButtons.forEach((btn) =>
+          btn.addEventListener('click', () => {
+            state.sortBy = btn.dataset.sort;
+            state.pageNo = 0;
+            state.keyword = '';
+            keywordInput.value = '';
+            loadBooks();
+          })
+        );
+        searchForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          state.keyword = keywordInput.value.trim();
+          state.pageNo = 0;
+          searchBooks();
+        });
+
+        loadBooks();
+      })();
+    </script>
+  </body>
+  </html>
