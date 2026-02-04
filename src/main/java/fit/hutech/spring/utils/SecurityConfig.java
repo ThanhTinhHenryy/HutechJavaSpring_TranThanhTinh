@@ -45,15 +45,14 @@ public class SecurityConfig {
         return http.authenticationProvider(authenticationProvider(userDetailsService, passwordEncoder()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers( "/css/**", "/js/**", "/",
-                                "/register", "/error")
+                                "/oauth/**", "/register", "/error")
                         .permitAll()
-                        .requestMatchers( "/books/edit",
-                                "/books/delete")
-                        .authenticated()
-                        .requestMatchers("/books", "/books/add")
-                        .authenticated()
+                        .requestMatchers("/books/edit/**", "/books/add", "/books/delete")
+                        .hasAnyAuthority("ROLE_ADMIN", "ADMIN")
+                        .requestMatchers("/books", "/cart", "/cart/**")
+                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_USER", "ADMIN", "USER")
                         .requestMatchers("/api/**")
-                        .authenticated()
+                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_USER", "ADMIN", "USER")
                         .anyRequest().authenticated()
                 )
                 .logout(logout ->
@@ -78,8 +77,8 @@ public class SecurityConfig {
                                 .successHandler((request, response, authentication) -> {
                                     Object principal = authentication.getPrincipal();
                                     if (principal instanceof OidcUser oidcUser) {
-                                        String email = oidcUser.getEmail();
-                                        String name = oidcUser.getFullName();
+                                        String email = (String) oidcUser.getAttributes().get("email");
+                                        String name = (String) oidcUser.getAttributes().get("name");
                                         userService.saveOauthUser(email, name);
                                     }
                                     response.sendRedirect("/");
@@ -95,6 +94,9 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement ->
                         sessionManagement.maximumSessions(1)
                                 .expiredUrl("/login")
+                )
+                .httpBasic(httpBasic -> httpBasic
+                        .realmName("hutech")
                 )
                 .build();
     }

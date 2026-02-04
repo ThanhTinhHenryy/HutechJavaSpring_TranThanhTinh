@@ -60,6 +60,7 @@ public class UserController {
         }
         try {
             userService.save(user);
+            userService.setDefaultRole(user.getUsername());
         } catch (Exception e) {
             model.addAttribute("errors", new String[]{e.getMessage()});
             return "user/register";

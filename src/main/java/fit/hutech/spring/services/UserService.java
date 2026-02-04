@@ -2,6 +2,7 @@ package fit.hutech.spring.services;
 
 import fit.hutech.spring.constants.Provider;
 import fit.hutech.spring.entities.User;
+import fit.hutech.spring.repositories.IRoleRepository;
 import fit.hutech.spring.repositories.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +25,8 @@ public class UserService implements UserDetailsService {
     private IUserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private IRoleRepository roleRepository;
 
     @Transactional(isolation = Isolation.SERIALIZABLE,
             rollbackFor = {Exception.class, Throwable.class})
@@ -33,6 +36,7 @@ public class UserService implements UserDetailsService {
         user.setPhone(user.getPhone() == null ? null : user.getPhone().trim());
         user.setPassword(passwordEncoder.encode(user.getPassword().trim()));
         userRepository.save(user);
+        setDefaultRole(user.getUsername());
     }
     public Optional<User> findByUsername(String username) throws
             UsernameNotFoundException {
@@ -66,6 +70,7 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(java.util.UUID.randomUUID().toString()));
         user.setProvider("oauth");
         userRepository.save(user);
+        setDefaultRole(user.getUsername());
     }
     @Override
     public UserDetails loadUserByUsername(String username) throws
@@ -82,6 +87,22 @@ public class UserService implements UserDetailsService {
         return byPhone.orElseThrow(() ->
                 new UsernameNotFoundException("User not found with identifier: " + username)
         );
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE,
+            rollbackFor = {Exception.class, Throwable.class})
+    public void setDefaultRole(String username) {
+        userRepository.findByUsername(username).ifPresent(u -> {
+            var roleUser = roleRepository.findByName("ROLE_USER");
+            if (roleUser == null) {
+                var r = new fit.hutech.spring.entities.Role();
+                r.setName("ROLE_USER");
+                r.setDescription("Default user role");
+                roleUser = roleRepository.save(r);
+            }
+            u.getRoles().add(roleUser);
+            userRepository.save(u);
+        });
     }
 
 //    public void saveOauthUser(String email, @NotNull String username) {
