@@ -28,6 +28,17 @@ public class ApiController {
                 .map(BookGetVm::from)
                 .toList());
     }
+    @GetMapping("/books/filter")
+    public ResponseEntity<List<BookGetVm>> filterBooks(
+            Integer pageNo, Integer pageSize, String sortBy,
+            String keyword, Long categoryId, Double minPrice, Double maxPrice){
+        var list = bookService.searchAdvanced(
+                pageNo == null ? 0 : pageNo,
+                pageSize == null ? 20 : pageSize,
+                sortBy == null ? "id" : sortBy,
+                keyword, categoryId, minPrice, maxPrice);
+        return ResponseEntity.ok(list.stream().map(BookGetVm::from).toList());
+    }
 
     @GetMapping("/books/id/{id}")
     public ResponseEntity<BookGetVm> getBookById(@PathVariable Long id) {
@@ -82,5 +93,17 @@ public class ApiController {
             return "\"" + v + "\"";
         }
         return v;
+    }
+    @GetMapping("/categories")
+    public ResponseEntity<java.util.List<java.util.Map<String,Object>>> getCategories(){
+        var data = categoryService.getAllCategories().stream()
+                .map(c -> {
+                    var m = new java.util.HashMap<String,Object>();
+                    m.put("id", c.getId());
+                    m.put("name", c.getName());
+                    return (java.util.Map<String,Object>) m;
+                })
+                .toList();
+        return ResponseEntity.ok(data);
     }
 }

@@ -45,18 +45,20 @@ public class SecurityConfig {
         return http.authenticationProvider(authenticationProvider(userDetailsService, passwordEncoder()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers( "/css/**", "/js/**", "/",
-                                "/oauth/**", "/register", "/error")
+                                "/oauth/**", "/register", "/error", "/uploads/**")
                         .permitAll()
                         .requestMatchers("/books/edit/**", "/books/add", "/books/delete")
                         .hasAnyAuthority("ROLE_ADMIN", "ADMIN")
                         .requestMatchers("/books/import")
                         .hasAnyAuthority("ROLE_ADMIN", "ADMIN")
                         .requestMatchers("/books", "/cart", "/cart/**")
-                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_USER", "ADMIN", "USER")
+                        .authenticated()
                         .requestMatchers("/api/**")
-                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_USER", "ADMIN", "USER")
-                        .requestMatchers("/wishlist", "/profile")
-                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_USER", "ADMIN", "USER")
+                        .authenticated()
+                        .requestMatchers("/wishlist", "/profile", "/orders")
+                        .authenticated()
+                        .requestMatchers("/admin/**")
+                        .hasAnyAuthority("ROLE_ADMIN", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .logout(logout ->
@@ -98,9 +100,6 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement ->
                         sessionManagement.maximumSessions(1)
                                 .expiredUrl("/login")
-                )
-                .httpBasic(httpBasic -> httpBasic
-                        .realmName("hutech")
                 )
                 .build();
     }

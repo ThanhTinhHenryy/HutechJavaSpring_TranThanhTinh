@@ -46,8 +46,18 @@ public class CartController {
         return "redirect:/cart ";
     }
     @GetMapping("/checkout")
-    public String checkout(HttpSession session) {
-        cartService.saveCart(session);
-        return "redirect:/cart";
+    public String checkout(HttpSession session, @NotNull Model model) {
+        model.addAttribute("cart", cartService.getCart(session));
+        model.addAttribute("totalPrice", cartService.getSumPrice(session));
+        return "book/checkout";
+    }
+    @org.springframework.web.bind.annotation.PostMapping("/checkout")
+    public String doCheckout(HttpSession session,
+                             @org.springframework.web.bind.annotation.RequestParam String shippingName,
+                             @org.springframework.web.bind.annotation.RequestParam String shippingPhone,
+                             @org.springframework.web.bind.annotation.RequestParam String shippingAddress,
+                             @org.springframework.web.bind.annotation.RequestParam String paymentMethod) {
+        cartService.saveCartWithDetails(session, shippingName, shippingPhone, shippingAddress, paymentMethod);
+        return "redirect:/orders";
     }
 }

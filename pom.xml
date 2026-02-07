@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>fit.hutech</groupId>
-	<artifactId>spring.lab03</artifactId>
+	<artifactId>TranThanhTinh_2280603282</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>spring.lab03</name>
 	<description>Thực hành lập trình ứng dụng với java</description>

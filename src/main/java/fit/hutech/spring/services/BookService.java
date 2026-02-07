@@ -50,6 +50,7 @@ public List<Book> getAllBooks(Integer pageNo, Integer pageSize, String sortBy) {
         existingBook.setAuthor(book.getAuthor());
         existingBook.setPrice(book.getPrice());
         existingBook.setCategory(book.getCategory());
+        existingBook.setImageUrl(book.getImageUrl());
         bookRepository.save(existingBook);
     }
     public void deleteBookById(Long id) {
@@ -58,5 +59,12 @@ public List<Book> getAllBooks(Integer pageNo, Integer pageSize, String sortBy) {
 
     public List<Book> searchBook(String keyword) {
         return bookRepository.searchBook(keyword);
+    }
+
+    public List<Book> searchAdvanced(Integer pageNo, Integer pageSize, String sortBy,
+                                     String keyword, Long categoryId, Double minPrice, Double maxPrice){
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+        String kw = keyword == null ? null : keyword.trim().toLowerCase();
+        return bookRepository.searchAdvanced(kw, categoryId, minPrice, maxPrice, pageable);
     }
 }

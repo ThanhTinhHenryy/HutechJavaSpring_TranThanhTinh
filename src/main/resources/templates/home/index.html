@@ -13,15 +13,113 @@ scale=1.0">
 <th:block th:replace="~{layout::header}"></th:block>
 <div class="container container-page">
     <div class="hero">
-        <h1 class="mb-2">Ứng dụng quản lý sách</h1>
-        <p class="text-secondary mb-4">Kết nối CSDL MySQL, quản lý danh mục, sách, giỏ hàng và hóa đơn.</p>
-        <div class="d-flex gap-2">
-            <a class="btn btn-light" href="/books">Danh sách sách</a>
-            <a class="btn btn-outline-light" href="/api/list">Danh sách qua API</a>
-            <a class="btn btn-outline-light" href="/cart">Giỏ hàng</a>
+        <div class="row align-items-center">
+          <div class="col-lg-7">
+            <h1 class="mb-2">Khám phá kho sách</h1>
+            <p class="text-secondary mb-4">Tìm kiếm, quản lý và mua sách nhanh chóng với giao diện hiện đại.</p>
+            <div class="d-flex gap-2">
+                <a class="btn btn-primary" href="/books">Xem sách</a>
+                <a class="btn btn-outline-primary" href="/api/list">Xem qua API</a>
+                <a class="btn btn-outline-secondary" href="/cart">Giỏ hàng</a>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="card feature-card p-3">
+              <div class="h5 mb-2">Danh mục nổi bật</div>
+              <div class="d-flex flex-wrap gap-2" id="homeCategories"></div>
+            </div>
+          </div>
         </div>
     </div>
+    <div class="row g-3 my-4">
+      <div class="col-md-4">
+        <div class="card feature-card p-3">
+          <div class="h5 mb-2">Wishlist</div>
+          <p class="text-secondary mb-3">Lưu sách yêu thích để xem lại nhanh.</p>
+          <a class="btn btn-outline-primary btn-sm" href="/wishlist">Mở wishlist</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card feature-card p-3">
+          <div class="h5 mb-2">Import/Export</div>
+          <p class="text-secondary mb-3">Nhập CSV nhanh và tải danh sách.</p>
+          <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary btn-sm" href="/api/v1/books/export/csv">Export CSV</a>
+            <a class="btn btn-outline-primary btn-sm" href="/books/import" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ADMIN')">Import</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card feature-card p-3">
+          <div class="h5 mb-2">Profile</div>
+          <p class="text-secondary mb-3">Xem thông tin tài khoản của bạn.</p>
+          <a class="btn btn-outline-primary btn-sm" href="/profile">Mở profile</a>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h3 class="m-0">Sách mới</h3>
+      <a class="btn btn-outline-secondary btn-sm" href="/books">Xem tất cả</a>
+    </div>
+    <div class="row g-3" id="homeBooks"></div>
 </div>
 <th:block th:replace="~{layout::footer}"></th:block>
+<script>
+  (function(){
+    const container = document.getElementById('homeBooks');
+    const catContainer = document.getElementById('homeCategories');
+    async function load() {
+      try{
+        const res = await fetch('/api/v1/books?pageNo=0&pageSize=8&sortBy=id', { credentials: 'same-origin' });
+        if(!res.ok){ return; }
+        const data = await res.json();
+        container.innerHTML = data.map(b => `
+          <div class="col-md-3 d-flex">
+            <div class="card book-card p-3 h-100 w-100">
+              ${b.imageUrl ? `<div class="thumb"><img src="${b.imageUrl}" alt="Cover"></div>` : `<div class="thumb"><div class="book-thumb"><span>${String(b.title || '').substring(0,1)}</span></div></div>`}
+              <div class="fw-semibold mt-2">${b.title || ''}</div>
+              <small class="text-secondary">${b.author || ''}</small>
+              <div class="mt-2 d-flex justify-content-between align-items-center">
+                <span class="badge badge-soft">${b.category || ''}</span>
+                <span>${b.price != null ? '₫ ' + b.price : ''}</span>
+              </div>
+              <div class="mt-2 d-flex gap-2 actions">
+                <a class="btn btn-primary btn-sm" href="/books/detail/${b.id}">Xem</a>
+                <button class="btn btn-outline-secondary btn-sm" data-id="${b.id}" data-title="${b.title}" data-author="${b.author}" data-price="${b.price}" data-category="${b.category || ''}" onclick="addWish(this)">Wishlist</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }catch(e){}
+    }
+    async function loadCategories(){
+      try{
+        const res = await fetch('/api/v1/categories', { credentials: 'same-origin' });
+        if(!res.ok) return;
+        const data = await res.json();
+        catContainer.innerHTML = data.slice(0,8).map(c => `<a class="btn btn-light btn-sm" href="/books?category=${c.id}">${c.name}</a>`).join('');
+      }catch(e){}
+    }
+    load();
+    loadCategories();
+    window.addWish = function(btn){
+      const item = {
+        id: btn.getAttribute('data-id'),
+        title: btn.getAttribute('data-title'),
+        author: btn.getAttribute('data-author'),
+        price: btn.getAttribute('data-price'),
+        category: btn.getAttribute('data-category')
+      };
+      const list = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      if(!list.find(b => String(b.id) === String(item.id))){
+        list.push(item);
+        localStorage.setItem('wishlist', JSON.stringify(list));
+        alert('Đã thêm vào wishlist');
+      } else {
+        alert('Sách đã có trong wishlist');
+      }
+    }
+  })();
+</script>
 </body>
 </html>

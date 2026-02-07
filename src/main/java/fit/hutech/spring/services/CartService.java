@@ -7,9 +7,12 @@ import fit.hutech.spring.entities.ItemInvoice;
 import fit.hutech.spring.repositories.IBookRepository;
 import fit.hutech.spring.repositories.IInvoiceRepository;
 import fit.hutech.spring.repositories.IItemInvoiceRepository;
+import fit.hutech.spring.repositories.IUserRepository;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +27,7 @@ public class CartService {
     private final IInvoiceRepository invoiceRepository;
     private final IItemInvoiceRepository itemInvoiceRepository;
     private final IBookRepository bookRepository;
+    private final IUserRepository userRepository;
     public Cart getCart(@NotNull HttpSession session) {
         return Optional.ofNullable((Cart)
                         session.getAttribute(CART_SESSION_KEY))
@@ -56,6 +60,40 @@ public class CartService {
         var invoice = new Invoice();
         invoice.setInvoiceDate(new Date(new Date().getTime()));
         invoice.setPrice(getSumPrice(session));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            userRepository.findByUsername(auth.getName()).ifPresent(invoice::setUser);
+        }
+        invoice.setStatus("PENDING");
+        invoiceRepository.save(invoice);
+        cart.getCartItems().forEach(item -> {
+            var items = new ItemInvoice();
+            items.setInvoice(invoice);
+            items.setQuantity(item.getQuantity());
+            items.setBook(bookRepository.findById(item.getBookId()).orElseThrow());
+            itemInvoiceRepository.save(items);
+        });
+        removeCart(session);
+    }
+    public void saveCartWithDetails(@NotNull HttpSession session,
+                                    String shippingName,
+                                    String shippingPhone,
+                                    String shippingAddress,
+                                    String paymentMethod){
+        var cart = getCart(session);
+        if (cart.getCartItems().isEmpty()) return;
+        var invoice = new Invoice();
+        invoice.setInvoiceDate(new Date(new Date().getTime()));
+        invoice.setPrice(getSumPrice(session));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            userRepository.findByUsername(auth.getName()).ifPresent(invoice::setUser);
+        }
+        invoice.setShippingName(shippingName);
+        invoice.setShippingPhone(shippingPhone);
+        invoice.setShippingAddress(shippingAddress);
+        invoice.setPaymentMethod(paymentMethod);
+        invoice.setStatus("PENDING");
         invoiceRepository.save(invoice);
         cart.getCartItems().forEach(item -> {
             var items = new ItemInvoice();

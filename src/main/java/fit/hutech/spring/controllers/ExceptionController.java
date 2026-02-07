@@ -18,7 +18,8 @@ RequestDispatcher.ERROR_STATUS_CODE))
 .map(status -> Integer.parseInt(status.toString()))
 .filter(status -> status == 404
 || status == 500
-|| status == 403)
+|| status == 403
+|| status == 413)
 .map(status -> "error/" + status)
 .orElse("error/404");
 }
@@ -34,5 +35,9 @@ RequestDispatcher.ERROR_STATUS_CODE))
     @GetMapping("/500")
     public String internalError() {
         return "error/500";
+    }
+    @GetMapping("/413")
+    public String contentTooLarge() {
+        return "error/413";
     }
 }

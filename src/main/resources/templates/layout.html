@@ -44,28 +44,28 @@
               <li class="nav-item">
                 <a class="nav-link active" aria-current="page" href="/">Home</a>
               </li>
-              <li
-                class="nav-item"
-                sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_USER','ADMIN','USER')"
-              >
+              <li class="nav-item" sec:authorize="isAuthenticated()">
                 <a class="nav-link" href="/books">List Book</a>
               </li>
 
-              <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_USER','ADMIN','USER')">
+              <li class="nav-item" sec:authorize="isAuthenticated()">
                 <a class="nav-link" href="/api/list">List API</a>
               </li>
 
               <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ADMIN')">
                 <a class="nav-link" href="/books/add">Add Book</a>
               </li>
-              <li
-                class="nav-item"
-                sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_USER','ADMIN','USER')"
-              >
+              <li class="nav-item" sec:authorize="isAuthenticated()">
                 <a class="nav-link" href="/cart">Cart</a>
               </li>
-              <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_USER','ADMIN','USER')">
+              <li class="nav-item" sec:authorize="isAuthenticated()">
                 <a class="nav-link" href="/wishlist">Wishlist</a>
+              </li>
+              <li class="nav-item" sec:authorize="isAuthenticated()">
+                <a class="nav-link" href="/orders">Orders</a>
+              </li>
+              <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ADMIN')">
+                <a class="nav-link" href="/admin/orders">Admin Orders</a>
               </li>
             </ul>
             <div class="d-flex ms-auto align-items-center gap-2" sec:authorize="isAuthenticated()">

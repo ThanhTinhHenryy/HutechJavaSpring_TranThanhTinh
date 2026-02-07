@@ -21,6 +21,8 @@ public class BookController {
     private final BookService bookService;
     private final CategoryService categoryService;
     private final CartService cartService;
+    @org.springframework.beans.factory.annotation.Value("${app.upload.dir:uploads}")
+    private String uploadDir;
     @GetMapping
     public String showAllBooks(@NotNull Model model,
                                @RequestParam(defaultValue = "0")
@@ -49,7 +51,9 @@ public class BookController {
     public String addBook(
             @Valid @ModelAttribute("book") Book book,
             @NotNull BindingResult bindingResult,
-            Model model) {
+            Model model,
+            @org.springframework.web.bind.annotation.RequestParam(value = "image", required = false)
+            org.springframework.web.multipart.MultipartFile image) {
         if (bindingResult.hasErrors()) {
             var errors = bindingResult.getAllErrors()
                     .stream()
@@ -58,6 +62,9 @@ public class BookController {
             model.addAttribute("categories",
                     categoryService.getAllCategories());
             return "book/add";
+        }
+        if(image != null && !image.isEmpty()){
+            book.setImageUrl(saveImage(image));
         }
         bookService.addBook(book);
         return "redirect:/books";
@@ -143,7 +150,9 @@ public class BookController {
     @PostMapping("/edit")
     public String editBook(@Valid @ModelAttribute("book") Book book,
                            @NotNull BindingResult bindingResult,
-                           Model model) {
+                           Model model,
+                           @org.springframework.web.bind.annotation.RequestParam(value = "image", required = false)
+                           org.springframework.web.multipart.MultipartFile image) {
         if (bindingResult.hasErrors()) {
             var errors = bindingResult.getAllErrors()
                     .stream()
@@ -153,6 +162,11 @@ public class BookController {
             model.addAttribute("categories",
                     categoryService.getAllCategories());
             return "book/edit";
+        }
+        if(image != null && !image.isEmpty()){
+            book.setImageUrl(saveImage(image));
+        } else {
+            bookService.getBookById(book.getId()).ifPresent(b -> book.setImageUrl(b.getImageUrl()));
         }
         bookService.updateBook(book);
         return "redirect:/books";
@@ -174,5 +188,23 @@ public class BookController {
         model.addAttribute("categories",
                 categoryService.getAllCategories());
         return "book/list";
+    }
+
+    private String saveImage(org.springframework.web.multipart.MultipartFile file){
+        try{
+            String ext = "";
+            var name = file.getOriginalFilename();
+            if(name != null && name.contains(".")){
+                ext = name.substring(name.lastIndexOf("."));
+            }
+            var dir = new java.io.File(uploadDir + java.io.File.separator + "books");
+            if(!dir.exists()) dir.mkdirs();
+            String filename = java.util.UUID.randomUUID().toString().replace("-","") + (ext.isEmpty()? ".jpg": ext);
+            var target = new java.io.File(dir, filename);
+            file.transferTo(target);
+            return "/uploads/books/" + filename;
+        }catch(Exception e){
+            return null;
+        }
     }
 }
