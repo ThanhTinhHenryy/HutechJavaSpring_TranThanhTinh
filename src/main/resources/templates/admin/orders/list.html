@@ -1,0 +1,57 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Orders</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+  </head>
+  <body>
+    <th:block th:replace="~{layout::header}"></th:block>
+    <div class="container container-page">
+      <div class="card p-3 mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <h2 class="m-0">Admin - Orders</h2>
+        </div>
+      </div>
+      <div class="card p-3">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Invoice ID</th>
+              <th>User</th>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Shipping</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="inv : ${orders}">
+              <td th:text="${inv.id}"></td>
+              <td th:text="${inv.user != null ? inv.user.username : ''}"></td>
+              <td th:text="${#dates.format(inv.invoiceDate,'yyyy-MM-dd HH:mm')}"></td>
+              <td th:text="${inv.price}"></td>
+              <td><span class="badge badge-soft" th:text="${inv.status}"></span></td>
+              <td>
+                <div><small class="text-secondary">Tên:</small> <span th:text="${inv.shippingName}"></span></div>
+                <div><small class="text-secondary">SĐT:</small> <span th:text="${inv.shippingPhone}"></span></div>
+                <div><small class="text-secondary">Địa chỉ:</small> <span th:text="${inv.shippingAddress}"></span></div>
+                <div><small class="text-secondary">Thanh toán:</small> <span th:text="${inv.paymentMethod}"></span></div>
+              </td>
+              <td class="d-flex gap-1">
+                <a class="btn btn-outline-primary btn-sm" th:href="@{/admin/orders/{id}/confirm(id=${inv.id})}">Confirm</a>
+                <a class="btn btn-outline-success btn-sm" th:href="@{/admin/orders/{id}/pay(id=${inv.id})}">Mark Paid</a>
+                <a class="btn btn-outline-danger btn-sm" th:href="@{/admin/orders/{id}/cancel(id=${inv.id})}" onclick="return confirm('Cancel order?')">Cancel</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <th:block th:replace="~{layout::footer}"></th:block>
+  </body>
+</html>

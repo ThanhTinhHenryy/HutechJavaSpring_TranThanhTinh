@@ -1,0 +1,23 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>413 Content Too Large</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+  </head>
+  <body>
+    <th:block th:replace="~{layout::header}"></th:block>
+    <div class="container container-page">
+      <div class="card p-4 text-center">
+        <h1 class="display-4">413</h1>
+        <p class="lead">File ảnh vượt quá giới hạn kích thước.</p>
+        <p class="text-secondary">Vui lòng chọn ảnh nhỏ hơn hoặc nén ảnh trước khi tải lên.</p>
+        <a class="btn btn-primary" href="/books/add">Quay lại thêm sách</a>
+      </div>
+    </div>
+    <th:block th:replace="~{layout::footer}"></th:block>
+  </body>
+  </html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+  </head>
+  <body>
+    <th:block th:replace="~{layout::header}"></th:block>
+    <div class="container container-page">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card p-3 mb-3">
+            <h4 class="mb-3">Thông tin giao hàng</h4>
+            <form th:action="@{/cart/checkout}" method="post">
+              <div class="mb-2">
+                <label class="form-label">Họ và tên</label>
+                <input class="form-control" name="shippingName" required />
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Số điện thoại</label>
+                <input class="form-control" name="shippingPhone" required />
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Địa chỉ</label>
+                <textarea class="form-control" name="shippingAddress" required></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Phương thức thanh toán</label>
+                <select class="form-control" name="paymentMethod">
+                  <option value="COD">COD</option>
+                  <option value="ONLINE">Online</option>
+                </select>
+              </div>
+              <button class="btn btn-primary w-100" type="submit">Đặt hàng</button>
+            </form>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card p-3 mb-3">
+            <h4 class="mb-3">Tóm tắt đơn hàng</h4>
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Book</th>
+                  <th>Qty</th>
+                  <th>Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="item : ${cart.cartItems}">
+                  <td th:text="${item.bookName}"></td>
+                  <td th:text="${item.quantity}"></td>
+                  <td th:text="${item.price}"></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="d-flex justify-content-between">
+              <div class="fw-semibold">Tổng thanh toán</div>
+              <div th:text="${totalPrice}"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{layout::footer}"></th:block>
+  </body>
+  </html>

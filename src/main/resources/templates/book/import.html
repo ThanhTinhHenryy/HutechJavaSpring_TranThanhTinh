@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+    <title>Import Books CSV</title>
+</head>
+<body>
+<th:block th:replace="~{layout::header}"></th:block>
+<div class="container container-page">
+    <div class="card p-4">
+        <h2 class="mb-3">Import Books from CSV</h2>
+        <p class="text-secondary mb-3">Định dạng: id,title,author,price,category. Có thể bỏ id, category sẽ tạo nếu chưa có.</p>
+        <form th:action="@{/books/import}" method="post" enctype="multipart/form-data">
+            <div class="mb-3 col-6">
+                <input type="file" class="form-control" name="file" accept=".csv" required>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Import</button>
+                <a class="btn btn-outline-secondary" href="/books">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+<th:block th:replace="~{layout::footer}"></th:block>
+</body>
+</html>

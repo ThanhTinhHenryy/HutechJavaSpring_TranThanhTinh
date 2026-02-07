@@ -1,0 +1,75 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book Detail</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+  </head>
+  <body>
+    <th:block th:replace="~{layout::header}"></th:block>
+    <div class="container container-page">
+      <div class="card p-4 book-detail">
+        <div class="row g-4 align-items-center">
+          <div class="col-md-4">
+            <div th:if="${book.imageUrl}">
+              <img th:src="@{${book.imageUrl}}" alt="Cover" style="width:100%; max-width:280px; border-radius:12px;">
+            </div>
+            <div class="book-cover" th:unless="${book.imageUrl}">
+              <span th:text="${#strings.substring(book.title,0,1)}"></span>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <h2 class="mb-2" th:text="${book.title}"></h2>
+            <div class="mb-3">
+              <span class="badge badge-soft me-2" th:text="${book.author}"></span>
+              <span class="badge badge-soft" th:text="${book.category != null ? book.category.name : 'Unknown'}"></span>
+            </div>
+            <div class="display-price mb-4">
+              <span th:text="${book.price != null ? '₫ ' + book.price : 'Chưa cập nhật'}"></span>
+            </div>
+            <div class="d-flex gap-2">
+              <form th:action="@{/books/add-to-cart}" method="post" class="d-inline">
+                <input type="hidden" name="id" th:value="${book.id}" />
+                <input type="hidden" name="name" th:value="${book.title}" />
+                <input type="hidden" name="price" th:value="${book.price}" />
+                <button type="submit" class="btn btn-primary">Add to cart</button>
+              </form>
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                th:attr="data-id=${book.id},data-title=${book.title},data-author=${book.author},data-price=${book.price},data-category=${book.category != null ? book.category.name : 'Unknown'}"
+                onclick="addWishlist(this)"
+              >
+                Add to wishlist
+              </button>
+              <a class="btn btn-outline-secondary" href="/books">Back to list</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{layout::footer}"></th:block>
+    <script>
+      function addWishlist(btn){
+        const item = {
+          id: btn.getAttribute('data-id'),
+          title: btn.getAttribute('data-title'),
+          author: btn.getAttribute('data-author'),
+          price: btn.getAttribute('data-price'),
+          category: btn.getAttribute('data-category')
+        };
+        const list = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        if(!list.find(b => String(b.id) === String(item.id))){
+          list.push(item);
+          localStorage.setItem('wishlist', JSON.stringify(list));
+          alert('Đã thêm vào wishlist');
+        } else {
+          alert('Sách đã có trong wishlist');
+        }
+      }
+    </script>
+  </body>
+  </html>

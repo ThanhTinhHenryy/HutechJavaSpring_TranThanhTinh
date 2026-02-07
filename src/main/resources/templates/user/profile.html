@@ -1,0 +1,38 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+  </head>
+  <body>
+    <th:block th:replace="~{layout::header}"></th:block>
+    <div class="container container-page">
+      <div class="card p-4">
+        <h2 class="mb-3">Profile</h2>
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <img
+            th:if="${principal instanceof T(org.springframework.security.oauth2.core.oidc.user.OidcUser)}"
+            th:src="${principal.getAttribute('picture')}"
+            alt="avatar"
+            class="avatar-img"
+          />
+          <div
+            th:if="${not (principal instanceof T(org.springframework.security.oauth2.core.oidc.user.OidcUser))}"
+            class="avatar-initial"
+            th:text="${#strings.substring(username,0,1)}"
+          ></div>
+          <div>
+            <div class="fw-semibold" th:text="${username}"></div>
+            <small class="text-secondary">Roles: <span th:text="${#strings.arrayJoin(authorities,' , ')}"></span></small>
+          </div>
+        </div>
+        <a class="btn btn-outline-secondary" href="/">Back</a>
+      </div>
+    </div>
+    <th:block th:replace="~{layout::footer}"></th:block>
+  </body>
+  </html>

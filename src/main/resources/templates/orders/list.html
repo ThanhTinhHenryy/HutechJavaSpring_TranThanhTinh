@@ -1,0 +1,75 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Orders</title>
+    <th:block th:replace="~{layout::link-css}"></th:block>
+    <th:block th:replace="~{layout::custom-css}"></th:block>
+  </head>
+  <body>
+    <th:block th:replace="~{layout::header}"></th:block>
+    <div class="container container-page">
+      <div class="card p-3 mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <h2 class="m-0">Orders</h2>
+        </div>
+      </div>
+      <div th:if="${#lists.isEmpty(invoices)}" class="empty-state card">
+        <div class="row"><div class="col-md-6 offset-md-3 text-center">
+          <h3 class="mt-5">Chưa có đơn hàng</h3>
+          <p class="lead">Hãy thêm sách vào giỏ và Checkout.</p>
+          <a class="btn btn-primary" href="/books">Đi đến danh sách sách</a>
+        </div></div>
+      </div>
+      <div th:if="${not #lists.isEmpty(invoices)}">
+        <div class="card p-3">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Invoice ID</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Items</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="inv : ${invoices}">
+                <td th:text="${inv.id}"></td>
+                <td th:text="${#dates.format(inv.invoiceDate,'yyyy-MM-dd HH:mm')}"></td>
+                <td th:text="${inv.price}"></td>
+                <td><span class="badge badge-soft" th:text="${inv.status}"></span></td>
+                <td>
+                  <div class="mb-2">
+                    <div><small class="text-secondary">Tên:</small> <span th:text="${inv.shippingName}"></span></div>
+                    <div><small class="text-secondary">SĐT:</small> <span th:text="${inv.shippingPhone}"></span></div>
+                    <div><small class="text-secondary">Địa chỉ:</small> <span th:text="${inv.shippingAddress}"></span></div>
+                    <div><small class="text-secondary">Thanh toán:</small> <span th:text="${inv.paymentMethod}"></span></div>
+                  </div>
+                  <table class="table table-sm">
+                    <thead>
+                      <tr><th>Title</th><th>Author</th><th>Qty</th><th>Price</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr th:each="it : ${inv.itemInvoices}">
+                        <td th:text="${it.book.title}"></td>
+                        <td th:text="${it.book.author}"></td>
+                        <td th:text="${it.quantity}"></td>
+                        <td th:text="${it.book.price}"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="mt-2">
+                    <a class="btn btn-primary btn-sm" th:if="${inv.status == 'CONFIRMED'}" th:href="@{/orders/pay/{id}(id=${inv.id})}">Pay Now</a>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{layout::footer}"></th:block>
+  </body>
+</html>
